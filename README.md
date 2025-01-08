@@ -5,11 +5,15 @@ Annotation in Multi-channel Signal processing" with examples of its use in Eosin
 
 ## Creation of the executable file
 
-An executable script can be made with the use of the python package PyInstaller. To create the executable script (.exe):
+An executable script (.exe) can be made with the use of the python package PyInstaller. To create the executable script run the following lines in a prompt terminal inside the cloned folder of the repository:
 
+if you don't have PyInstaller installed then install it as follows
 - pip install PyInstaller 
 
+to create the executable copy and paste the follow line in the terminal
 - python -m PyInstaller -F GUI_TimeSeriesScribe.py
+
+The last sentence will create two folders: build and dist. Inside the dist folder the executable file is created (GUI_TimeSeriesScribe.exe). Executable can then be moved to the desired location. 
 
 ## Script modification and adaptiblity
 
