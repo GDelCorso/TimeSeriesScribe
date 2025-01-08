@@ -7,9 +7,9 @@ Annotation in Multi-channel Signal processing" with examples of its use in Eosin
 
 An executable script can be made with the use of the python package PyInstaller. To create the executable script (.exe):
 
-pip install PyInstaller 
+- pip install PyInstaller 
 
-python -m PyInstaller -F GUI_TimeSeriesScribe.py
+- python -m PyInstaller -F GUI_TimeSeriesScribe.py
 
 ## Script modification and adaptiblity
 
