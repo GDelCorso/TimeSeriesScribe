@@ -18,17 +18,11 @@ to create the executable copy and paste the follow line in the terminal
 
 The last sentence will create two folders: build and dist. Inside the dist folder the executable file is created (GUI_TimeSeriesScribe.exe). Executable can then be moved to the desired location. 
 
+<!---
 ## Script modification and adaptiblity
 
-Different elements of the input visualization and labelling can be adjusted to the need. Following a list of the modifiable variables and their effect are reported:
-
-FINIRE SIMON
--
--
--
-
-
-
+The actual script is structured in order to read 
+--->
 
 
 
