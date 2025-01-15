@@ -4,13 +4,7 @@ TimeSeriesScribe is an open-source versatile package which can be used to create
 Annotation in Multi-channel Signal processing" with examples of its use in Eosinophilic esophagitis segmentation. 
 
 ## How to cite it
-FARE
-
-## How to use it
-FARE
-
-## Requirements
-FARE
+FARE DOPO SCHOLAR
 
 ## Creation of the executable file
 
@@ -28,7 +22,7 @@ The last sentence will create two folders: build and dist. Inside the dist folde
 
 Different elements of the input visualization and labelling can be adjusted to the need. Following a list of the modifiable variables and their effect are reported:
 
-FINIRE
+FINIRE SIMON
 -
 -
 -
