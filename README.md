@@ -2,9 +2,6 @@
 
 TimeSeriesScribe is an open-source versatile package which can be used to create a time segmentation of a signal with multiple channels. A tecnical review of the package can be found "TimeSeriesScribe: Open-source Platform for Enhanced Annotation in Multi-channel Signal processing" with examples of its use in Eosinophilic esophagitis segmentation. 
 
-## How to cite it
-FARE DOPO SCHOLAR
-
 ## Creation of the executable file
 
 An executable script (.exe) can be made with the use of the python package PyInstaller. To create the executable script run the following lines in a prompt terminal inside the cloned folder of the repository:
