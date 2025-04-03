@@ -131,7 +131,7 @@ class GUI_generate():
             label='Exit',
             command=self.root.destroy
             )
-
+        
         # Main loop and GUI update
         self.root.update()
         self.root.mainloop()
@@ -796,7 +796,7 @@ class GUI_generate():
         
         # Database ph:
         list_ph = []
-
+        
         for i_temp in range(start_ph_array,start_impedence_array-5):
             
             temp_row = list_lines[i_temp]
@@ -811,7 +811,16 @@ class GUI_generate():
         list_impedence = []
         count_subdivision = 0
         
+        printed_percentage = 0
+        print("Load percentage: ",printed_percentage)
+        
         for i_temp in range(start_impedence_array,start_diary-1):
+            tmp_percentage = int(i_temp*100/len(range(start_impedence_array,start_diary-1)))
+            
+            if tmp_percentage >= printed_percentage+5:
+                printed_percentage = tmp_percentage
+                print("Load percentage: ",printed_percentage)
+                
             temp_row = list_lines[i_temp]
             
             temp_row_list = (temp_row.replace('\n','')).split('\t')
@@ -861,13 +870,15 @@ class GUI_generate():
         self.signal_5 = self.impedence_df['Value_5'].to_list()
         self.signal_6 = self.impedence_df['Value_6'].to_list()   
         
-        for name in self.signal_names:
-            vector = np.array(getattr(self,name)) 
-            x = np.where(vector > 11)[0]
-            vector[x] = 11
-            setattr(self,name,vector)
-        
-        self.plot_graph()
+        self.save_processed_signal()
+
+       # for name in self.signal_names:
+       #     vector = np.array(getattr(self,name)) 
+       #     x = np.where(vector > 11)[0]
+       #     vector[x] = 11
+       #     setattr(self,name,vector)
+            
+       # self.plot_graph()
     ###########################################################################        
         
     
