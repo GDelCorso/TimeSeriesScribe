@@ -19,7 +19,12 @@ The last sentence will create two folders: build and dist. Inside the dist folde
 At the moment the script is built to visualize a 6+1 multichannel signal in which 6 channels have the same dynamic measurement range and the last one its single case. 
 
 
-
+## Bug fixing and addition:
+# TODOLIST
+1) Assottigliare le linee
+2) Correggere ordine 1-7
+3) Mettere che quando passi il mouse compare una linea sottile
+4) possibilità di inserire un'orario per andare direttamente lì in quel punto del tracciato
 
 
 
