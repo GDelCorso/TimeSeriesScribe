@@ -25,6 +25,13 @@ At the moment the script is built to visualize a 6+1 multichannel signal in whic
 2) Correggere ordine 1-7
 3) Mettere che quando passi il mouse compare una linea sottile
 4) possibilità di inserire un'orario per andare direttamente lì in quel punto del tracciato
+5) Increase time window
+
+
+## Installing:
+customtkinter==0.3 (and the pip install --upgrade customtkinter)
+pandas==2.2.3
+matplotlib==3.10.0
 
 
 
