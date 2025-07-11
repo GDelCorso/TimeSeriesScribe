@@ -14,6 +14,9 @@ to create the executable copy and paste the follow line in the terminal
 
 The last sentence will create two folders: build and dist. Inside the dist folder the executable file is created (GUI_TimeSeriesScribe.exe). Executable can then be moved to the desired location. 
 
+If the compilation requires a higher time, open the NAMEFILE.spec and add the line:
+import sys ; sys.setrecursionlimit(sys.getrecursionlimit() * 5)
+
 ## Script modification and adaptibility 
 
 At the moment the script is built to visualize a 6+1 multichannel signal in which 6 channels have the same dynamic measurement range and the last one its single case. 
