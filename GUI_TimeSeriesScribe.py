@@ -67,6 +67,9 @@ class GUI_generate():
                        '#0173b2', '#de8f05']       
         
         self.click_counts = 0               # Aux count to select the signal
+        
+        # Vertical line position (ruler)
+        self.cursor_line = None
 
         # Initialize the vector position to plot the signals
         self.cond_min = None                # Minimum value
@@ -91,6 +94,9 @@ class GUI_generate():
         self.x_size = 200                   # Horizontal dimension
         self.y_size = 150                   # Vertical dimension
         self.fontsize = 6                   # Initial fontsize
+        
+        self.linewidth = 0.5                # Linewidth
+        
         customtkinter.set_appearance_mode("light")  # Light appearance
         
         self.root = customtkinter.CTk()     # Initialize root
@@ -223,8 +229,23 @@ class GUI_generate():
         
         self.update_graph()
     ###########################################################################        
-        
+
+
+
+    ###########################################################################        
+    def on_mouse_move(self, event):
+        if event.inaxes:
+            # Remove old line if exists
+            if hasattr(self, 'cursor_line') and self.cursor_line:
+                self.cursor_line.remove()
     
+            # Create and draw new line
+            ax = event.inaxes
+            self.cursor_line = ax.axvline(event.xdata, color='red', linestyle='--', linewidth=1)
+            self.fig.canvas.draw_idle()
+    ###########################################################################
+
+
 
     ###########################################################################   
     def mark_signal(self, signal_type, signal_color):
@@ -235,7 +256,7 @@ class GUI_generate():
 
         # Dectivate each button in the list
         for button in self.button_list:
-            button.configure(state="disabled",fg_color="light gray")
+            button.configure(state="disabled",fg_color="light gray")      
 
         # Temporary activate the tcross shape of the cursor
         self.root.config(cursor = "tcross")
@@ -250,13 +271,39 @@ class GUI_generate():
         # Temporary store the x_values to be passed at interval_select method 
         # to save the labeled time interval
         self.signal_xvalues_temp = []
+        
+        # Remove previous line if exists
+        if hasattr(self, 'cursor_line') and self.cursor_line:
+            self.cursor_line.remove()
+            self.cursor_line = None
+            self.fig.canvas.draw_idle()
+    
+        # Connect event handlers
+        self.motion_id = self.fig.canvas.mpl_connect('motion_notify_event', self.on_mouse_move)
 
         # Call the event handler on the self.interval_select method
         self.id = self.fig.canvas.mpl_connect('button_press_event',
                                                           self.interval_select)
     ###########################################################################
+
+
+
+    ###########################################################################    
+    def cleanup_signal_session(self):
+        '''Call this when you're done with signal marking'''
+        if hasattr(self, 'cursor_line') and self.cursor_line:
+            self.cursor_line.remove()
+            self.cursor_line = None
+            self.fig.canvas.draw_idle()
     
+        # Disconnect the event handlers
+        self.fig.canvas.mpl_disconnect(self.motion_id)
+        self.fig.canvas.mpl_disconnect(self.id)
     
+        self.root.config(cursor = "arrow")
+    ###########################################################################
+
+        
     
     ###########################################################################           
     def interval_select(self, event):
@@ -269,10 +316,11 @@ class GUI_generate():
         
         # First (left) click inside the canvas
         if event.inaxes==self.ax and event.button == 1 and self.click_counts<2: 
-            self.signal_xvalues_temp.append(event.xdata)
+            self.signal_xvalues_temp.append(int(event.xdata))
             self.click_counts = self.click_counts + 1
         
         if self.click_counts == 2:              # Second (left) click 
+           # self.signal_xvalues_temp = np.array([float(self.signal_xvalues_temp[0]), float(self.signal_xvalues_temp[1])], dtype=float)
             (self.signal_xvalues_temp).sort()   # Sort the two values       
             
             # Append to the main lists
@@ -283,8 +331,9 @@ class GUI_generate():
             
             self.label_n = self.label_n + 1     # Increase number of labels
 
-            self.fig.canvas.mpl_disconnect(self.id)
-            self.root.config(cursor = "arrow")
+            self.cleanup_signal_session()
+            # self.fig.canvas.mpl_disconnect(self.id)
+            # self.root.config(cursor = "arrow")
             
             # Activate again deactivated buttons
             for button in self.button_list:
@@ -359,6 +408,7 @@ class GUI_generate():
         
         if event.inaxes == self.ax_total:
             x = event.xdata
+            
             self.par_left_time = x
             
             self.update_graph()
@@ -449,6 +499,32 @@ class GUI_generate():
 
 
 
+    ###########################################################################
+    def go_to_and_check(self):
+        '''
+        Method to update the figure in the selected  time (time format hh:mm:ss)
+        '''
+        # Check if the signal is in the correct shape
+        d, hh, mm, ss = self.v1.get().split(":")
+        
+        if len(self.v1.get().split(":"))==4 and \
+                         ((len(d)<=2) and (len(hh)==2) and (len(mm)==2) and (len(ss)==2)) and \
+                              (d.isdigit() and hh.isdigit() and mm.isdigit() and ss.isdigit()):
+            # Convert to ms
+            tmp_time_ms = 1000*(int(d)*3600*24+int(hh)*3600+int(mm)*60+int(ss))
+            
+            # Go to that timepoint
+            if tmp_time_ms >= self.par_min_time and tmp_time_ms<self.par_max_time:
+                self.par_left_time = tmp_time_ms
+                self.update_graph()
+            else:
+                self.v1.set("d:hh:mm:ss")
+        else:
+            self.v1.set("d:hh:mm:ss")
+    ###########################################################################            
+    
+                
+
     ###########################################################################    
     def plot_graph(self):
         '''
@@ -522,7 +598,7 @@ class GUI_generate():
             
             # Frame of vertical zoom slider 
             self.zoom_frame = customtkinter.CTkFrame(self.root)
-            self.zoom_frame.grid(row=0, column=0, rowspan=7, padx=(5, 5), 
+            self.zoom_frame.grid(row=0, column=0, rowspan=6, padx=(5, 5), 
                                                   pady=(10, 10), sticky="nsew")
             
             self.zoom_frame.columnconfigure(list(range(1)), weight = 1, 
@@ -531,7 +607,7 @@ class GUI_generate():
                                                         uniform="Silent_Creme")
             
             self.slider_1 = customtkinter.CTkSlider(self.zoom_frame, from_=0.5, 
-                             to=20, number_of_steps=39, orientation='vertical')
+                             to=120, number_of_steps=239, orientation='vertical')
             self.slider_1.set(2)
             self.slider_1.bind("<ButtonRelease-1>", self.slider_event)
             
@@ -543,6 +619,36 @@ class GUI_generate():
             
             self.slider_1.grid(row=1, column=0, rowspan=6, pady = (0,10), 
                                                                    sticky="ns")
+            
+
+            # Generate goto 
+            self.goto_frame = customtkinter.CTkFrame(self.root)
+            self.goto_frame.grid(row=6, column=0, rowspan = 2, columnspan=1, 
+                                    padx=(5, 5), pady=(10, 10), sticky="nsew")
+            
+            self.goto_frame.columnconfigure(list(range(1)), weight = 1, 
+                                                        uniform="Silent_Creme")
+            self.goto_frame.rowconfigure(list(range(2)), weight = 1, 
+                                                        uniform="Silent_Creme")
+            
+            self.v1 = customtkinter.StringVar(value="d:hh:mm:ss")
+            
+            def on_change(*args):
+                g = 7 # Segnaposto
+                
+                
+            # # Lega l'evento al cambiamento
+            self.v1.trace_add("write", on_change)    
+            
+            text_insert_time = customtkinter.CTkEntry(master=self.goto_frame, textvariable=self.v1) 
+            # # # text_insert_time = customtkinter.CTkButton(master=self.root
+            # # #        , text=">",font = my_font_1, command=self.minor_right_shift) 
+            text_insert_time.grid(row=0, column=0, padx=(5,5), 
+                                                      pady=(10, 0), sticky="e")
+            
+            button_insert_time =  customtkinter.CTkButton(master=self.goto_frame, text="Go To",font = my_font_1, command=self.go_to_and_check) 
+            button_insert_time.grid(row=1, column=0, padx=5, pady=5, columnspan = 1,
+                                                                sticky= "nsew")
             
             # Define the frame to add the switches
             self.switch_frame = customtkinter.CTkFrame(self.root)
@@ -670,7 +776,7 @@ class GUI_generate():
             self.ax = self.axes[0]
             self.canvas = FigureCanvasTkAgg(self.fig, master=self.root)
             
-            self.signal_names = np.array(['signal_' + str(i) + '_selected' 
+            self.signal_names = np.array(['signal_' + str(7-i) + '_selected' 
                                             for i in range(1,7)],dtype = 'str')
             self.signal_names = np.append('signal_ph_selected',
                                                              self.signal_names)
@@ -863,6 +969,8 @@ class GUI_generate():
         
         # Define the list of the signals
         self.time_impedence = self.impedence_df['Time(ms)'].to_list()
+        
+        # warning: Values are ascending order, therefore Value_6 = Z1, Value_1 = Z6
         self.signal_1 = self.impedence_df['Value_1'].to_list()
         self.signal_2 = self.impedence_df['Value_2'].to_list()
         self.signal_3 = self.impedence_df['Value_3'].to_list()
@@ -916,12 +1024,12 @@ class GUI_generate():
 
         for n in range(len(self.signal_names)):
             if n == 0:
-                self.ax.text(-0.1, 4.5, 'ph1', transform = trans,
+                self.ax.text(-0.1, 4.5, 'ph', transform = trans,
                                                   horizontalalignment='center',
                            bbox = dict(facecolor = self.colors[0],alpha = 0.4),
                                                       fontsize = self.fontsize)
             else:
-                self.ax.text(-0.1, self.yticks[n] + 3.5, f'Z{n+1}', 
+                self.ax.text(-0.1, self.yticks[n] + 3.5, f'Z{7-n}', 
                                transform = trans, horizontalalignment='center',
                            bbox = dict(facecolor = self.colors[n],alpha = 0.4),
                                                       fontsize = self.fontsize)
@@ -1028,13 +1136,14 @@ class GUI_generate():
         # Makes a single plot with all the signals in it.
         # Each signal is plotted with different colors and has an offset in 
         # order to be visualized.                
+        
         for (p,n) in enumerate(self.signal_names):
             if p == 0:
                 self.ax.plot(times_dictionary['time_ph'],getattr(self,n),
-                                                        color = self.colors[p])
+                                                        color = self.colors[p], linewidth=self.linewidth)
                 discriminator =4*np.ones(len(times_dictionary['time_ph']))
                 self.ax.plot(times_dictionary['time_ph'], discriminator, 
-                                                                color = 'grey')
+                                                                color = 'grey', linewidth=self.linewidth)
 
                 self.ax.fill_between(times_dictionary['time_ph'], 
                               getattr(self,self.signal_names[0]),4,color = 'r', 
@@ -1044,7 +1153,7 @@ class GUI_generate():
                 # Adding the plot to the signal in order to visualize it 
                 # in the same plot
                 self.ax.plot(times_dictionary['time_imped'], 
-                      getattr(self,n) + self.yticks[p], color = self.colors[p]) 
+                      getattr(self,n) + self.yticks[p], color = self.colors[p], linewidth=self.linewidth) 
 
         steps = 6
         indice = np.floor((time_impedence_selected[-1]
@@ -1134,7 +1243,9 @@ class GUI_generate():
             labelling_df = pd.DataFrame()
             labelling_df['labels'] = self.category
             labelling_df['color_label'] = self.color_category
+
             labelling_df['intervals'] = self.x_values
+            
          
             impedence_df_merged = pd.concat([self.impedence_df,
                                               self.df_ph,labelling_df], axis=1)     
