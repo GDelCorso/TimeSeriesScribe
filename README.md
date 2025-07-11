@@ -16,6 +16,8 @@ The last sentence will create two folders: build and dist. Inside the dist folde
 
 If the compilation requires a higher time, open the NAMEFILE.spec and add the line:
 import sys ; sys.setrecursionlimit(sys.getrecursionlimit() * 5)
+and run in the terminal
+PyInstaller GUI_TimeSeriesScribe.spec
 
 ## Script modification and adaptibility 
 
